@@ -52,5 +52,9 @@ RUN find /www -type d -exec chmod -R 555 {} \; \
     && find /www/storage /www/bootstrap/cache -type d -exec chmod -R 755 {} \; \
     && find /www/storage /www/bootstrap/cache -type f -exec chmod -R 644 {} \;
 
+# Grant write permissions to the SQLite database file
+RUN touch /www/database/database.sqlite \
+    && chmod 664 /www/database/database.sqlite
+    
 # Put vendor back where it belongs
 RUN mv /tmp/vendor /www/vendor
