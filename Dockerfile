@@ -37,13 +37,10 @@ RUN apk -U --no-cache add \
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-
-
 # RUN ln -s /usr/bin/php82 /usr/bin/php
 
 COPY dev/docker/configs/php/opcache.ini /etc/php82/conf.d/
 COPY dev/docker/configs/php/local.ini /etc/php82/conf.d/
-
 
 COPY --chown=php:nginx . /www
 
@@ -51,10 +48,10 @@ COPY --chown=php:nginx . /www
 RUN composer install --no-dev --optimize-autoloader
 
 # Copy vendor first so we don't have to copy this when it didn't change
-COPY --chown=php:nginx ./vendor /tmp/vendor
+# COPY --chown=php:nginx ./vendor /tmp/vendor
 
 # Remove the vendor so we don't have to chmod that (saves a lot of time!)
-RUN rm -rf /www/vendor
+# RUN rm -rf /www/vendor
 
 RUN find /www -type d -exec chmod -R 555 {} \; \
     && find /www -type f -exec chmod -R 444 {} \; \
@@ -66,4 +63,4 @@ RUN touch /www/database/database.sqlite \
     && chmod 664 /www/database/database.sqlite
     
 # Put vendor back where it belongs
-RUN mv /tmp/vendor /www/vendor
+# RUN mv /tmp/vendor /www/vendor
