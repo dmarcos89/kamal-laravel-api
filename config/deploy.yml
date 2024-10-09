@@ -37,8 +37,18 @@ builder:
 
 # Inject ENV variables into containers (secrets come from .kamal/secrets).
 #
-# env:
-#   clear:
+env:
+  clear:
+    APP_NAME: Laravel
+    APP_ENV: local
+    APP_KEY: base64:kpWOi8CwysxnrqoESRoy/R9o/xalVUYPe44FB5PF7kg=
+    APP_DEBUG: true
+    APP_TIMEZONE: UTC
+    APP_URL: http://kamal-laravel-api.play.baummstudio.com
+    APP_LOCALE: en
+    APP_FALLBACK_LOCALE: en
+    APP_FAKER_LOCALE: en_US
+    DB_CONNECTION: sqlite
 #     DB_HOST: 192.168.0.2
 #   secret:
 #     - RAILS_MASTER_KEY
