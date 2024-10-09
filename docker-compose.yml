@@ -1,0 +1,97 @@
+services:
+    laravel_api:
+        build:
+            dockerfile: Dockerfile
+            context: .
+        container_name: laravel_api
+        ports:
+            - "80:80"
+        networks:
+            - laravel-network
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        volumes:
+            - .:/www
+        environment:
+            PHP_IDE_CONFIG: serverName=local.demo
+            COMPOSER_MEMORY_LIMIT: -1
+        depends_on:
+            - laravel_mysql
+        links:
+            - laravel_mysql
+            - laravel_mailpit
+
+    laravel_mysql:
+        image: mysql:latest
+        command: mysqld --sql_mode=""
+        container_name: laravel_mysql
+        restart: always
+        ports:
+            - "3307:3306"
+        environment:
+            MYSQL_DATABASE: laravel
+            MYSQL_PASSWORD: secret
+            MYSQL_ROOT_PASSWORD: secret
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        networks:
+            - laravel-network
+        volumes:
+            - ./dev/laraveldbdata:/var/lib/mysql
+
+    laravel_mailpit:
+        image: axllent/mailpit
+        container_name: laravel_mailpit
+        ports:
+            - "8082:8025"
+        networks:
+            - laravel-network
+
+    laravel_redis:
+        image: redis:alpine
+        container_name: laravel_redis
+        ports:
+            - "6379:6379"
+        networks:
+            - laravel-network
+
+    laravel_queue:
+        build:
+            dockerfile: Dockerfile
+            context: .
+        container_name: laravel_queue
+        restart: always
+        volumes:
+            - .:/www
+        links:
+            - laravel_redis
+        depends_on:
+            - laravel_redis
+        networks:
+            - laravel-network
+        command: php artisan queue:work
+
+    laravel_cron:
+        build:
+            dockerfile: Dockerfile
+            context: .
+        container_name: laravel_cron
+        volumes:
+            - .:/www
+        links:
+            - laravel_mysql
+        depends_on:
+            - laravel_mysql
+        networks:
+            - laravel-network
+        entrypoint: /usr/local/bin/cron.sh
+
+# Docker Networks
+networks:
+    laravel-network:
+        driver: bridge
+
+# Volumes
+volumes:
+    laraveldbdata:
+        driver: local
