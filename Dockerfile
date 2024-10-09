@@ -35,14 +35,23 @@ RUN apk -U --no-cache add \
         redis \
         && rm -rf /var/cache/apk/*
 
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+
+
 # RUN ln -s /usr/bin/php82 /usr/bin/php
 
 COPY dev/docker/configs/php/opcache.ini /etc/php82/conf.d/
 COPY dev/docker/configs/php/local.ini /etc/php82/conf.d/
 
+
+COPY --chown=php:nginx . /www
+
+# Install Composer dependencies
+RUN composer install --no-dev --optimize-autoloader
+
 # Copy vendor first so we don't have to copy this when it didn't change
 COPY --chown=php:nginx ./vendor /tmp/vendor
-COPY --chown=php:nginx . /www
 
 # Remove the vendor so we don't have to chmod that (saves a lot of time!)
 RUN rm -rf /www/vendor
